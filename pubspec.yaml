@@ -29,11 +29,14 @@ dependencies:
   hive: ^1.4.1+1
   hive_flutter: ^0.3.0+2
   uuid: ^2.0.4
+  flutter_calendar_carousel: ^1.4.11
+  path_provider: ^1.6.5
+  provider: ^4.0.4
 
 
 dev_dependencies:
-  hive_generator: ^0.7.0+2
   build_runner: ^1.8.0
+  hive_generator: ^0.7.0+2
   flutter_test:
     sdk: flutter
 

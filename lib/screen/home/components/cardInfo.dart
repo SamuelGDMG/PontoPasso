@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:pontopasso/store/controller.dart';
+import 'package:provider/provider.dart';
 
 class CardInfo extends StatefulWidget {
+
+  final String texto;
+  final String totalDia;
+
+  CardInfo(this.texto, this.totalDia);
+
   @override
-  State<StatefulWidget> createState() {
-    return CardInfoState();
-  }
+  _CardInfoState createState() => _CardInfoState();
 }
 
-class CardInfoState extends State<StatefulWidget> {
-  @override
+class _CardInfoState extends State<CardInfo> {
+    @override
   Widget build(BuildContext context) {
     return Container(
       width: 135,
@@ -20,8 +27,10 @@ class CardInfoState extends State<StatefulWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Text("data"),
-            Text("data"),
+            Text(widget.texto),
+            Observer(
+              builder: (_) => Text(widget.totalDia),
+            )
           ],
         ),
       ),
