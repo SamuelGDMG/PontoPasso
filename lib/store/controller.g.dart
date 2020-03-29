@@ -49,6 +49,26 @@ mixin _$Controller on ControllerBase, Store {
     }, _$meusPontosAtom, name: '${_$meusPontosAtom.name}_set');
   }
 
+  final _$meusPontosRegistradosAtom =
+      Atom(name: 'ControllerBase.meusPontosRegistrados');
+
+  @override
+  ObservableList<RegistrarDia> get meusPontosRegistrados {
+    _$meusPontosRegistradosAtom.context
+        .enforceReadPolicy(_$meusPontosRegistradosAtom);
+    _$meusPontosRegistradosAtom.reportObserved();
+    return super.meusPontosRegistrados;
+  }
+
+  @override
+  set meusPontosRegistrados(ObservableList<RegistrarDia> value) {
+    _$meusPontosRegistradosAtom.context.conditionallyRunInAction(() {
+      super.meusPontosRegistrados = value;
+      _$meusPontosRegistradosAtom.reportChanged();
+    }, _$meusPontosRegistradosAtom,
+        name: '${_$meusPontosRegistradosAtom.name}_set');
+  }
+
   final _$dateTimeSelecionadoAtom =
       Atom(name: 'ControllerBase.dateTimeSelecionado');
 
@@ -130,9 +150,29 @@ mixin _$Controller on ControllerBase, Store {
   }
 
   @override
+  void meuLog(ObservableList<RegistrarDia> meusLog) {
+    final _$actionInfo = _$ControllerBaseActionController.startAction();
+    try {
+      return super.meuLog(meusLog);
+    } finally {
+      _$ControllerBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void cancelarPonto() {
+    final _$actionInfo = _$ControllerBaseActionController.startAction();
+    try {
+      return super.cancelarPonto();
+    } finally {
+      _$ControllerBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     final string =
-        'data: ${data.toString()},meusPontos: ${meusPontos.toString()},dateTimeSelecionado: ${dateTimeSelecionado.toString()},totalHoras: ${totalHoras.toString()},totalDia: ${totalDia.toString()}';
+        'data: ${data.toString()},meusPontos: ${meusPontos.toString()},meusPontosRegistrados: ${meusPontosRegistrados.toString()},dateTimeSelecionado: ${dateTimeSelecionado.toString()},totalHoras: ${totalHoras.toString()},totalDia: ${totalDia.toString()}';
     return '{$string}';
   }
 }

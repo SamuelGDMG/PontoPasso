@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:pontopasso/components/alert_salvar/alert_salvar.dart';
 import 'package:pontopasso/model/ponto.dart';
 import 'package:pontopasso/model/registrar_dia.dart';
@@ -25,15 +26,50 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    controller = controller = Provider.of<Controller>(context);
+    controller = Provider.of<Controller>(context);
 
     return Scaffold(
       drawer: Drawer(
-        child: ListView(
-          children: <Widget>[
-            
-          ],
-        ),
+        child: Container(
+                height: double.maxFinite,
+                child: FutureBuilder(
+                  future: log(),
+                  builder: (BuildContext context, AsyncSnapshot snap){
+                    return Observer(
+                      builder: (_){
+                        if(controller.meusPontosRegistrados.length > 0){
+
+                          return Column(
+                            children: <Widget>[
+                              Expanded(
+                                child: Observer(builder: (_) => ListView.builder(
+                                    itemCount: controller.meusPontosRegistrados.length,
+                                    itemBuilder: (BuildContext context, i) {
+
+                                      RegistrarDia registrarDia = controller.meusPontosRegistrados[i];
+                                      String hora = (registrarDia.totalMinutos ~/ 60) < 10 ? "0${registrarDia.totalMinutos ~/ 60}" : "${registrarDia.totalMinutos ~/ 60}";
+                                      String minutos = (registrarDia.totalMinutos % 60) < 10 ? "0${registrarDia.totalMinutos % 60}" : "${registrarDia.totalMinutos % 60}";
+                                      return new ListTile(
+                                        title: new Text("Data: " + registrarDia.dataFormatada),
+                                        subtitle: Text("Hora: $hora:$minutos"),
+                                      );
+                                    })),
+                              )
+                            ],
+                          );
+                        }else {
+                          return ListView(
+                            children: <Widget>[
+                              ListTile(
+                                title: Text("Nenhum dado encontrado"),
+                              )
+                            ],
+                          );
+                        }
+                      },
+                    );
+                  },
+                )),
       ),
       appBar: AppBar(
         centerTitle: true,
@@ -72,10 +108,13 @@ class _HomeState extends State<Home> {
               );
               break;
             case ConnectionState.active:
-              // TODO: Handle this case.
+              return Container(
+                child: Text(("awdawd")),
+              );
               break;
             case ConnectionState.done:
               return Container(
+                color: Colors.grey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -96,6 +135,7 @@ class _HomeState extends State<Home> {
               );
               break;
           }
+
         },
       ),
       floatingActionButton: fab(),
@@ -156,19 +196,34 @@ class _HomeState extends State<Home> {
       return IconButton(
         icon: Icon(Icons.cancel),
         onPressed: () async {
-          var box = await Hive.openBox('meusRegistro');
-          RegistrarDia res = box.getAt(0);
-          print(box.values);
-          print(box.length);
-          print(res.dataFormatada);
+          controller.cancelarPonto();
         },
       );
     }
   }
 
   Future openBox() async {
+  }
+
+  Future log() async {
+
     final document = await path_provide.getApplicationDocumentsDirectory();
 
     Hive.init(document.path);
+
+    ObservableList<RegistrarDia> meusLog = ObservableList<RegistrarDia>();
+
+    var box = await Hive.openBox('meusRegistro');
+
+    for(var i = 0; i < box.length; i++){
+      meusLog.add(box.getAt(i));
+    }
+
+    print(meusLog.length);
+
+    controller.meuLog(meusLog);
+    print("ahhhhhhhhhhh");
+    print(controller.meusPontosRegistrados.length);
+    print("ussssssssssssssss");
   }
 }

@@ -24,7 +24,6 @@ class BodyState extends State<StatefulWidget> {
 
     return Container(
       decoration: BoxDecoration(
-          color: Colors.blue,
           borderRadius: BorderRadiusDirectional.only(
               topStart: Radius.circular(25), topEnd: Radius.circular(25))),
       width: double.infinity,

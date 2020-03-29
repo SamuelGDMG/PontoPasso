@@ -5,6 +5,7 @@ import 'package:pontopasso/model/ponto_hive.dart';
 import 'package:pontopasso/model/registrar_dia.dart';
 import 'package:pontopasso/store/controller.dart';
 import 'package:provider/provider.dart';
+import 'package:toast/toast.dart';
 import 'package:uuid/uuid.dart';
 
 class AlertSalvar extends StatefulWidget {
@@ -66,11 +67,21 @@ class _AlertSalvarState extends State<AlertSalvar> {
               
               DateTime date = controller.dateTimeSelecionado;
 
-              box.put(date.millisecondsSinceEpoch.toString(), RegistrarDia(controller.data, controller.totalHoras, date.day, date.month, date.year, descricao.text, Uuid().v1(), meusPontosRegistrados));
+              RegistrarDia registrarDia =  RegistrarDia(controller.data, controller.totalHoras, date.day, date.month, date.year, descricao.text, Uuid().v1(), meusPontosRegistrados);
+
+              box.put(date.millisecondsSinceEpoch.toString(), registrarDia);
 
               print(box.length);
 
-              await box.close();
+              controller.registrandoUmLog(registrarDia);
+
+              controller.cancelarPonto();
+
+              Toast.show("Salvando...", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+              Navigator.of(context).pop();
+
+              //await box.close();
 
             }
           },

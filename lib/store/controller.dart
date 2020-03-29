@@ -1,5 +1,6 @@
 import 'package:mobx/mobx.dart';
 import 'package:pontopasso/model/ponto.dart';
+import 'package:pontopasso/model/registrar_dia.dart';
 
 part 'controller.g.dart';
 
@@ -11,6 +12,9 @@ abstract class ControllerBase with Store {
 
   @observable
   ObservableList<Ponto> meusPontos = ObservableList<Ponto>();
+
+  @observable
+  ObservableList<RegistrarDia> meusPontosRegistrados = ObservableList<RegistrarDia>();
 
   @observable
   DateTime dateTimeSelecionado;
@@ -78,4 +82,21 @@ abstract class ControllerBase with Store {
 
     return "${horas < 10 ? "0$horas" : "$horas"}:${minutos < 10 ? "0$minutos" : "$minutos"}";
   }
+
+  @action
+  void meuLog(ObservableList<RegistrarDia> meusLog){
+    meusPontosRegistrados = meusLog;
+  }
+
+  void registrandoUmLog(RegistrarDia registrarDia){
+    meusPontosRegistrados.add(registrarDia);
+  }
+
+  @action
+  void cancelarPonto(){
+    data = "";
+    meusPontos.clear();
+    totalHoras = 0;
+  }
+
 }
