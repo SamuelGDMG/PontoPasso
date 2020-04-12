@@ -30,6 +30,16 @@ abstract class ControllerBase with Store {
   }
 
   @action
+  void setMeusPontos(ObservableList<Ponto> pontos){
+    meusPontos = pontos;
+  }
+
+  @action
+  void setDataFormatada(String dataFormatada){
+    data = dataFormatada;
+  }
+
+  @action
   void setDateTime(DateTime date){
     dateTimeSelecionado = date;
   }

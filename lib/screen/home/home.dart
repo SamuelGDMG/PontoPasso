@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:pontopasso/components/alert_salvar/alert_salvar.dart';
+import 'package:pontopasso/components/visualizar_atividade_registrada/visualizar_at_registrada.dart';
 import 'package:pontopasso/model/ponto.dart';
+import 'package:pontopasso/model/ponto_hive.dart';
 import 'package:pontopasso/model/registrar_dia.dart';
+import 'package:pontopasso/screen/historico/historico.dart';
 import 'package:pontopasso/screen/home/Components/header.dart';
 
 import 'package:path_provider/path_provider.dart' as path_provide;
@@ -27,49 +30,25 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     controller = Provider.of<Controller>(context);
-
     return Scaffold(
       drawer: Drawer(
         child: Container(
-                height: double.maxFinite,
-                child: FutureBuilder(
-                  future: log(),
-                  builder: (BuildContext context, AsyncSnapshot snap){
-                    return Observer(
-                      builder: (_){
-                        if(controller.meusPontosRegistrados.length > 0){
-
-                          return Column(
-                            children: <Widget>[
-                              Expanded(
-                                child: Observer(builder: (_) => ListView.builder(
-                                    itemCount: controller.meusPontosRegistrados.length,
-                                    itemBuilder: (BuildContext context, i) {
-
-                                      RegistrarDia registrarDia = controller.meusPontosRegistrados[i];
-                                      String hora = (registrarDia.totalMinutos ~/ 60) < 10 ? "0${registrarDia.totalMinutos ~/ 60}" : "${registrarDia.totalMinutos ~/ 60}";
-                                      String minutos = (registrarDia.totalMinutos % 60) < 10 ? "0${registrarDia.totalMinutos % 60}" : "${registrarDia.totalMinutos % 60}";
-                                      return new ListTile(
-                                        title: new Text("Data: " + registrarDia.dataFormatada),
-                                        subtitle: Text("Hora: $hora:$minutos"),
-                                      );
-                                    })),
-                              )
-                            ],
-                          );
-                        }else {
-                          return ListView(
-                            children: <Widget>[
-                              ListTile(
-                                title: Text("Nenhum dado encontrado"),
-                              )
-                            ],
-                          );
-                        }
-                      },
-                    );
-                  },
-                )),
+          child: ListView(
+            children: <Widget>[
+              GestureDetector(
+                onTap: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Historico()),
+                  );
+                },
+                child: ListTile(
+                  title: Text("Pontos registrados"),
+                ),
+              )
+            ],
+          ),
+        ),
       ),
       appBar: AppBar(
         centerTitle: true,
@@ -136,6 +115,10 @@ class _HomeState extends State<Home> {
               break;
           }
 
+          return Container(
+            child: Text("Erro!"),
+          );
+
         },
       ),
       floatingActionButton: fab(),
@@ -147,7 +130,16 @@ class _HomeState extends State<Home> {
       builder: (_) => Visibility(
         visible: controller.data != "" ? true : false,
         child: FloatingActionButton(
-          onPressed: () {
+          onPressed: () async {
+
+            var box = await Hive.openBox("salvamentoTemporario");
+
+            RegistrarDia re = box.get("temporario");
+
+            List<MeuPontoBase> meusPontos = re.meusPontos;
+
+            Ponto ponto;
+
             if (controller.meusPontos.length > 0) {
               String tipo = controller
                           .meusPontos[controller.meusPontos.length - 1]
@@ -156,12 +148,17 @@ class _HomeState extends State<Home> {
                   ? "Saída"
                   : "Entrada";
 
+              ponto = new Ponto(tipo, Uuid().v1(), 0, 0, "00:00", 0, 0);
+
               controller
-                  .addPonto(new Ponto(tipo, Uuid().v1(), 0, 0, "00:00", 0, 0));
+                  .addPonto(ponto);
             } else {
-              controller.addPonto(
-                  new Ponto("Entrada", Uuid().v1(), 0, 0, "00:00", 0, 0));
+              ponto = new Ponto("Entrada", Uuid().v1(), 0, 0, "00:00", 0, 0);
+              controller.addPonto(ponto);
             }
+
+            meusPontos.add(new MeuPontoBase(ponto.tipoPonto, ponto.id, ponto.totalMinutos));
+
           },
           child: Icon(Icons.add),
         ),
@@ -196,6 +193,8 @@ class _HomeState extends State<Home> {
       return IconButton(
         icon: Icon(Icons.cancel),
         onPressed: () async {
+          var box = await Hive.openBox("salvamentoTemporario");
+          await box.clear();
           controller.cancelarPonto();
         },
       );
@@ -203,6 +202,36 @@ class _HomeState extends State<Home> {
   }
 
   Future openBox() async {
+
+    final document = await path_provide.getApplicationDocumentsDirectory();
+
+    Hive.init(document.path);
+
+    var box = await Hive.openBox("salvamentoTemporario");
+
+    if(box.isNotEmpty){
+      print("N esta vazio");
+      RegistrarDia registrarDia = box.get("temporario");
+
+      controller.setDataFormatada(registrarDia.dataFormatada);
+
+      List<MeuPontoBase> listMeuPontoBase = registrarDia.meusPontos;
+
+      ObservableList<Ponto> obsPonto = ObservableList<Ponto>();
+
+      listMeuPontoBase.forEach((item){
+        double minutos = (item.totalMinutos % 60).toDouble();
+        double hora = (item.totalMinutos / 60).toDouble();
+        String representacao = "${hora < 10 ? "0${hora.toInt()}" : "${hora.toInt()}"}:${minutos < 10 ? "0${minutos.toInt()}" : "${minutos.toInt()}"}";
+        obsPonto.add(new Ponto(item.tipoPonto, item.id, minutos, 0, representacao, hora, item.totalMinutos));
+      });
+
+      controller.setMeusPontos(obsPonto);
+
+      controller.setDateTime(DateTime.fromMillisecondsSinceEpoch(registrarDia.dataMilliSeconds));
+
+    }
+
   }
 
   Future log() async {
@@ -226,4 +255,7 @@ class _HomeState extends State<Home> {
     print(controller.meusPontosRegistrados.length);
     print("ussssssssssssssss");
   }
+
+
+
 }

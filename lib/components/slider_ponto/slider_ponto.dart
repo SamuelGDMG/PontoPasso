@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:pontopasso/model/ponto.dart';
+import 'package:pontopasso/model/ponto_hive.dart';
+import 'package:pontopasso/model/registrar_dia.dart';
 import 'package:pontopasso/store/controller.dart';
 import 'package:provider/provider.dart';
 
@@ -14,8 +17,8 @@ class SliderPonto extends StatefulWidget {
 }
 
 class _SliderPontoState extends State<SliderPonto> {
-  double valueHora = 11;
-  double valueMinutos = 11;
+  double valueHora = 0;
+  double valueMinutos = 0;
 
   Ponto ponto;
   Controller controller;
@@ -81,10 +84,26 @@ class _SliderPontoState extends State<SliderPonto> {
           onPressed: () async {
             var representacao =
                 "${valueHora < 10 ? "0${valueHora.toInt()}" : "${valueHora.toInt()}"}:${valueMinutos < 10 ? "0${valueMinutos.toInt()}" : "${valueMinutos.toInt()}"}";
+
             ponto.hora = valueHora;
             ponto.minutos = valueMinutos;
             ponto.representacao = representacao;
             ponto.totalMinutos = (valueHora.toInt() * 60) + valueMinutos.toInt();
+
+            var box = await Hive.openBox("salvamentoTemporario");
+
+            RegistrarDia re = box.get("temporario");
+
+            List<MeuPontoBase> meusPontos = re.meusPontos;
+
+              meusPontos.insert(widget.index, new MeuPontoBase(ponto.tipoPonto, ponto.id, ponto.totalMinutos));
+              meusPontos.removeAt(widget.index + 1);
+
+
+            re.meusPontos = meusPontos;
+
+            box.put("temporario", re);
+
             Navigator.of(context).pop();
           },
         )

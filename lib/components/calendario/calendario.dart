@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/classes/event.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart' show CalendarCarousel;
+import 'package:hive/hive.dart';
+import 'package:pontopasso/model/registrar_dia.dart';
 import 'package:pontopasso/store/controller.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 
 class Calendario extends StatefulWidget {
@@ -22,11 +25,20 @@ class CalendarioState extends State<StatefulWidget> {
     return Container(
     margin: EdgeInsets.symmetric(horizontal: 16.0),
     child: CalendarCarousel<Event>(
-      onDayPressed: (DateTime date, List<Event> events) {
+      onDayPressed: (DateTime date, List<Event> events) async {
         //microsecondsSinceEpoch
         //print(DateTime.fromMicrosecondsSinceEpoch(date.microsecondsSinceEpoch));
+        //print(DateTime.fromMicrosecondsSinceEpoch(date.millisecondsSinceEpoch));
+
+        var box = await Hive.openBox("salvamentoTemporario");
+        String dataFormatada = "${date.day < 10 ? "0${date.day}" : "${date.day}"}/${date.month < 10 ? "0${date.month}" : "${date.month}"}/${date.year}";
+
+        RegistrarDia registrarDia = RegistrarDia(dataFormatada, 0, date.day, date.month, date.year, "", Uuid().v1(), [], date.millisecondsSinceEpoch);
+
+        box.put("temporario", registrarDia);
+
         controller.setDateTime(date);
-        controller.setData(date);    
+        controller.setData(date);
       },
       weekendTextStyle: TextStyle(
         color: Colors.red,

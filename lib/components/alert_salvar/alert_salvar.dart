@@ -67,13 +67,16 @@ class _AlertSalvarState extends State<AlertSalvar> {
               
               DateTime date = controller.dateTimeSelecionado;
 
-              RegistrarDia registrarDia =  RegistrarDia(controller.data, controller.totalHoras, date.day, date.month, date.year, descricao.text, Uuid().v1(), meusPontosRegistrados);
+              RegistrarDia registrarDia =  RegistrarDia(controller.data, controller.totalHoras, date.day, date.month, date.year, descricao.text, Uuid().v1(), meusPontosRegistrados, date.millisecondsSinceEpoch);
 
               box.put(date.millisecondsSinceEpoch.toString(), registrarDia);
 
               print(box.length);
 
               controller.registrandoUmLog(registrarDia);
+
+              var boxTemp = await Hive.openBox("salvamentoTemporario");
+              await boxTemp.clear();
 
               controller.cancelarPonto();
 

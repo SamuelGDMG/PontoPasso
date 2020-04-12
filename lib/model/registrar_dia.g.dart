@@ -25,13 +25,14 @@ class RegistrarDiaAdapter extends TypeAdapter<RegistrarDia> {
       fields[6] as String,
       fields[5] as String,
       (fields[7] as List)?.cast<MeuPontoBase>(),
+      fields[8] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, RegistrarDia obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.dataFormatada)
       ..writeByte(1)
@@ -47,6 +48,8 @@ class RegistrarDiaAdapter extends TypeAdapter<RegistrarDia> {
       ..writeByte(6)
       ..write(obj.descricao)
       ..writeByte(7)
-      ..write(obj.meusPontos);
+      ..write(obj.meusPontos)
+      ..writeByte(8)
+      ..write(obj.dataMilliSeconds);
   }
 }

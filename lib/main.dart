@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:pontopasso/model/registrar_dia.dart';
-import 'package:path_provider/path_provider.dart' as path_provide;
 import 'package:pontopasso/screen/home/home.dart';
 import 'package:pontopasso/store/controller.dart';
 import 'package:provider/provider.dart';
@@ -23,11 +22,15 @@ class Main extends StatefulWidget {
 }
 
 class _MainState extends State<Main> {
+
+  final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
   @override
   Widget build(BuildContext context) {
     return Provider(
       create: (context) => Controller(),
       child: MaterialApp(
+        navigatorObservers: [routeObserver],
         home: Home(),
       ),
     );

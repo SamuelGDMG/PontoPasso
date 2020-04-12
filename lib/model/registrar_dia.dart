@@ -30,6 +30,9 @@ class RegistrarDia {
   @HiveField(7)
   List<MeuPontoBase> meusPontos = [];
 
-  RegistrarDia(this.dataFormatada, this.totalMinutos, this.dia, this.mes, this.ano, this.descricao, this.id, this.meusPontos);
+  @HiveField(8)
+  int dataMilliSeconds;
+
+  RegistrarDia(this.dataFormatada, this.totalMinutos, this.dia, this.mes, this.ano, this.descricao, this.id, this.meusPontos, this.dataMilliSeconds);
 
 }

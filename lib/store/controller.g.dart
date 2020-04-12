@@ -120,6 +120,26 @@ mixin _$Controller on ControllerBase, Store {
   }
 
   @override
+  void setMeusPontos(ObservableList<Ponto> pontos) {
+    final _$actionInfo = _$ControllerBaseActionController.startAction();
+    try {
+      return super.setMeusPontos(pontos);
+    } finally {
+      _$ControllerBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setDataFormatada(String dataFormatada) {
+    final _$actionInfo = _$ControllerBaseActionController.startAction();
+    try {
+      return super.setDataFormatada(dataFormatada);
+    } finally {
+      _$ControllerBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setDateTime(DateTime date) {
     final _$actionInfo = _$ControllerBaseActionController.startAction();
     try {
