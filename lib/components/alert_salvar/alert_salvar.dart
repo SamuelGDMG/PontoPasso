@@ -16,6 +16,8 @@ class AlertSalvar extends StatefulWidget {
 class _AlertSalvarState extends State<AlertSalvar> {
   TextEditingController descricao = TextEditingController();
 
+  bool alternarCores = false;
+
   @override
   void initState() {
     super.initState();
@@ -31,14 +33,32 @@ class _AlertSalvarState extends State<AlertSalvar> {
         child: ListBody(
           children: <Widget>[
             TextField(
+              onChanged: (texto){
+                if(texto.length >= 24){
+                  setState(() {
+                    alternarCores = true;
+                  });
+                }else{
+                  setState(() {
+                    alternarCores = false;
+                  });
+                }
+              },
               maxLength: 254,
               maxLengthEnforced: true,
               keyboardType: TextInputType.multiline,
               controller: descricao,
               maxLines: 6,
+
               decoration: InputDecoration(
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: alternarCores ? Colors.blue : Colors.red
+                    )
+                ),
                 hintText: "Descrição...",
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                ),
               ),
             )
           ],
@@ -54,7 +74,7 @@ class _AlertSalvarState extends State<AlertSalvar> {
         FlatButton(
           child: Text('Salvar'),
           onPressed: () async {
-            if (descricao.text.length < 10) {
+            if (descricao.text.length < 24) {
               print("Digita mais ai ue");
             } else {
               var box = await Hive.openBox('meusRegistro');

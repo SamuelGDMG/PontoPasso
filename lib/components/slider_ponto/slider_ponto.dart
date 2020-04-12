@@ -29,7 +29,8 @@ class _SliderPontoState extends State<SliderPonto> {
 
     ponto = widget.ponto;
 
-    valueHora = ponto.hora;
+    valueHora = (ponto.hora).toDouble();
+    valueMinutos = (ponto.minutos).toDouble();
   }
 
   @override

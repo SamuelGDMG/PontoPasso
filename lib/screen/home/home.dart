@@ -172,9 +172,9 @@ class _HomeState extends State<Home> {
     } else {
       return IconButton(
         icon: Icon(Icons.done),
-        onPressed: () {
+        onPressed: () async {
           if (controller.meusPontos.length < 2) {
-            print("Vc precisa registrar ao menos dois pontos");
+            await alertDialog();
           } else {
             showDialog<double>(
               context: context,
@@ -193,9 +193,7 @@ class _HomeState extends State<Home> {
       return IconButton(
         icon: Icon(Icons.cancel),
         onPressed: () async {
-          var box = await Hive.openBox("salvamentoTemporario");
-          await box.clear();
-          controller.cancelarPonto();
+          await _neverSatisfied();
         },
       );
     }
@@ -248,14 +246,72 @@ class _HomeState extends State<Home> {
       meusLog.add(box.getAt(i));
     }
 
-    print(meusLog.length);
-
     controller.meuLog(meusLog);
-    print("ahhhhhhhhhhh");
-    print(controller.meusPontosRegistrados.length);
-    print("ussssssssssssssss");
   }
 
+  Future<void> _neverSatisfied() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Cancelar atividade'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Deseja cancelar o registro da sua atividade?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Não'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('Sim'),
+              onPressed: () async {
+                var box = await Hive.openBox("salvamentoTemporario");
+                 await box.clear();
+                 controller.cancelarPonto();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
+  Future<void> alertDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Salvar atividade'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Você precisa registrar 2 pontos para salvar uma atividade!'),
+                Divider(),
+                Text('OBS! Enquanto você não cancelar/salvar uma atividade, ela permanecera registrada na sua home.')
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('OK'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
 }
